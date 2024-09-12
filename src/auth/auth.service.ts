@@ -16,10 +16,15 @@ import { LoginDto } from './dto/login.dto';
 import { matchPasswords } from 'src/utils/functions/comparePasswords';
 import { tokenPayload } from 'src/utils/types/tokenPayloed';
 import { signToken } from 'src/utils/functions/signToken';
+import { EmailService } from 'src/email/email.service';
+import { welcomeTemplate } from 'src/email/types/emailTemplates';
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private emailService: EmailService,
+  ) {}
 
   async register(
     createUser: CreateUserDto,
@@ -59,6 +64,13 @@ export class AuthService {
         },
         select: prismaExclude('User', ['password']),
       });
+
+      await this.emailService.sendEmail(
+        'lumgash04@gmail.com',
+        user.email,
+        'welcome to the platform',
+        welcomeTemplate(user.firstName),
+      );
 
       // Send the response using the Express res object
       return customResponse({
