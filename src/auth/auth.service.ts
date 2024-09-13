@@ -66,7 +66,7 @@ export class AuthService {
       });
 
       await this.emailService.sendEmail(
-        'lumgash04@gmail.com',
+        'Acme <onboarding@resend.dev>',
         user.email,
         'welcome to the platform',
         welcomeTemplate(user.firstName),

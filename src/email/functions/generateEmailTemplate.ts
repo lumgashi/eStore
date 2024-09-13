@@ -1,7 +1,7 @@
 export function generateEmailTemplate({ body, imageUrl }) {
   return `
    <!DOCTYPE html>
- <html lang="en">
+  <html lang="en">
    <head>
      <meta charset="UTF-8" />
      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -57,7 +57,7 @@ export function generateEmailTemplate({ body, imageUrl }) {
                        style="padding: 20px 30px; display: flex"
                      >
                        <img
-                         src="/public/estore-image.png"
+                         src="https://e6db-46-99-48-114.ngrok-free.app/public/estore-image.png"
                          alt="estore"
                          style="
                            display: block;

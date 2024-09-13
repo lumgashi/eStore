@@ -17,13 +17,6 @@ import { EmailService } from 'src/email/email.service';
           infer: true,
         }),
         signOptions: {
-          // expiresIn: configService.getOrThrow(
-          //   'tokenExpiresIn' as keyof AllConfigType,
-          //   {
-          //     infer: true,
-          //   },
-          //   expiresIn: configService.getOrThrow('tokenExpiresIn' as keyof AllConfigType) as string | number
-          // ),
           expiresIn: configService.getOrThrow(
             'tokenExpiresIn' as keyof AllConfigType,
           ) as string | number,

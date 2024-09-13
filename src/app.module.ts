@@ -6,7 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { PaginateModule } from './paginate/paginate.module';
 import { EmailModule } from './email/email.module';
-import { ServeStaticModule } from '@nestjs/serve-static';
+import { ServeStaticModule } from '@nestjs/serve-static/dist/serve-static.module';
 import { join } from 'path';
 
 @Module({
@@ -16,7 +16,8 @@ import { join } from 'path';
       isGlobal: true,
     }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public'), // Path to the folder containing static files
+      rootPath: join(__dirname, '..', '..', 'public'),
+      serveRoot: '/public/',
     }),
     AuthModule,
     PaginateModule,
