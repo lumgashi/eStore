@@ -7,16 +7,16 @@ import {
 } from '@nestjs/common';
 
 import { customResponse } from '../utils/functions/customResponse';
-import { SuccessResponse, ErrorResponse } from 'src/utils/types/reponse-types';
-import { hashPassword } from 'src/utils/functions/hashPassword';
+import { SuccessResponse, ErrorResponse } from '../utils/types/reponse-types';
+import { hashPassword } from '../utils/functions/hashPassword';
 import { UserWithoutPassword } from './types';
 import { CreateUserDto } from './dto/create-user.dto';
-import { prismaExclude } from 'src/utils/functions/excludeFields';
+import { prismaExclude } from '../utils/functions/excludeFields';
 import { LoginDto } from './dto/login.dto';
-import { matchPasswords } from 'src/utils/functions/comparePasswords';
-import { tokenPayload } from 'src/utils/types/tokenPayloed';
-import { signToken } from 'src/utils/functions/signToken';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { matchPasswords } from '../utils/functions/comparePasswords';
+import { tokenPayload } from '../utils/types/tokenPayloed';
+import { signToken } from '../utils/functions/signToken';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class AuthService {
