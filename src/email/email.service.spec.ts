@@ -36,9 +36,9 @@ describe('EmailService', () => {
     configService = module.get<ConfigService>(ConfigService);
   });
 
-  // it('should be defined', () => {
-  //   expect(service).toBeDefined();
-  // });
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
 
   it('should send email successfully', async () => {
     const { data } = await service.sendEmail(

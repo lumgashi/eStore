@@ -1,22 +1,34 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
-import { PrismaModule } from '../prisma/prisma.module';
-import { ConfigModule } from '@nestjs/config';
 import { EmailService } from '../email/email.service';
+import { ConfigService } from '@nestjs/config';
+import { PrismaService } from '../prisma/prisma.service';
 
 describe('AuthService', () => {
   let service: AuthService;
+  let emailService: EmailService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [PrismaModule, ConfigModule],
-      providers: [AuthService, EmailService],
+      providers: [
+        AuthService,
+        EmailService,
+        PrismaService,
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn().mockReturnValue('fake_api_key'), // Mock API key
+          },
+        },
+      ],
     }).compile();
 
     service = module.get<AuthService>(AuthService);
+    emailService = module.get<EmailService>(EmailService);
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+    expect(emailService).toBeDefined();
   });
 });
