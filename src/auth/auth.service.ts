@@ -5,19 +5,20 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { customResponse } from 'src/utils/functions/customResponse';
-import { SuccessResponse, ErrorResponse } from 'src/utils/types/reponse-types';
-import { hashPassword } from 'src/utils/functions/hashPassword';
+
+import { customResponse } from '../utils/functions/customResponse';
+import { SuccessResponse, ErrorResponse } from '../utils/types/reponse-types';
+import { hashPassword } from '../utils/functions/hashPassword';
 import { UserWithoutPassword } from './types';
 import { CreateUserDto } from './dto/create-user.dto';
-import { prismaExclude } from 'src/utils/functions/excludeFields';
+import { prismaExclude } from '../utils/functions/excludeFields';
 import { LoginDto } from './dto/login.dto';
-import { matchPasswords } from 'src/utils/functions/comparePasswords';
-import { tokenPayload } from 'src/utils/types/tokenPayloed';
-import { signToken } from 'src/utils/functions/signToken';
-import { EmailService } from 'src/email/email.service';
-import { welcomeTemplate } from 'src/email/types/emailTemplates';
+import { matchPasswords } from '../utils/functions/comparePasswords';
+import { tokenPayload } from '../utils/types/tokenPayloed';
+import { signToken } from '../utils/functions/signToken';
+import { PrismaService } from '../prisma/prisma.service';
+import { EmailService } from '../email/email.service';
+import { welcomeTemplate } from '../email/types/emailTemplates';
 
 @Injectable()
 export class AuthService {
