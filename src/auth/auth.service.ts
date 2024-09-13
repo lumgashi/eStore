@@ -5,8 +5,8 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { customResponse } from 'src/utils/functions/customResponse';
+
+import { customResponse } from '../utils/functions/customResponse';
 import { SuccessResponse, ErrorResponse } from 'src/utils/types/reponse-types';
 import { hashPassword } from 'src/utils/functions/hashPassword';
 import { UserWithoutPassword } from './types';
@@ -16,6 +16,7 @@ import { LoginDto } from './dto/login.dto';
 import { matchPasswords } from 'src/utils/functions/comparePasswords';
 import { tokenPayload } from 'src/utils/types/tokenPayloed';
 import { signToken } from 'src/utils/functions/signToken';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class AuthService {
