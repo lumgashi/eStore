@@ -6,7 +6,7 @@ import {
 import { generateEmailTemplate } from './functions/generateEmailTemplate';
 import { Resend } from 'resend';
 import { ConfigService } from '@nestjs/config';
-import { customResponse } from 'src/utils/functions/customResponse';
+import { customResponse } from '../utils/functions/customResponse';
 
 @Injectable()
 export class EmailService {
