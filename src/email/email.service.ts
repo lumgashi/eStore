@@ -23,6 +23,7 @@ export class EmailService {
         html: generateEmailTemplate({ body: body, imageUrl: '' }),
       });
       console.log('data:', data);
+      return { data };
     } catch (error) {
       throw new InternalServerErrorException(
         customResponse({
