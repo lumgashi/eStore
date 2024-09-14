@@ -13,6 +13,19 @@ async function main() {
     },
   });
   console.log(user);
+
+  const post = await prisma.post.create({
+    data: {
+      title: 'Hello World',
+      content: 'This is my first post',
+      author: {
+        connect: {
+          id: user.id,
+        },
+      },
+    },
+  });
+  console.log(post);
 }
 
 // execute the main function

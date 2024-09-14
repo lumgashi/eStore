@@ -17,10 +17,15 @@ import { matchPasswords } from '../utils/functions/comparePasswords';
 import { tokenPayload } from '../utils/types/tokenPayloed';
 import { signToken } from '../utils/functions/signToken';
 import { PrismaService } from '../prisma/prisma.service';
+import { EmailService } from '../email/email.service';
+import { welcomeTemplate } from '../email/types/emailTemplates';
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private emailService: EmailService,
+  ) {}
 
   async register(
     createUser: CreateUserDto,
@@ -60,6 +65,13 @@ export class AuthService {
         },
         select: prismaExclude('User', ['password']),
       });
+
+      await this.emailService.sendEmail(
+        'Acme <onboarding@resend.dev>',
+        user.email,
+        'welcome to the platform',
+        welcomeTemplate(user.firstName),
+      );
 
       // Send the response using the Express res object
       return customResponse({
