@@ -64,6 +64,7 @@ export class UsersService {
                 content: true,
               },
             },
+            store: true,
             id: true,
             firstName: true,
             lastName: true,
@@ -97,6 +98,9 @@ export class UsersService {
         password: true,
       },
       where: { id },
+      include: {
+        store: true,
+      },
     });
 
     if (!user) {
