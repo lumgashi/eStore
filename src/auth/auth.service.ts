@@ -19,6 +19,8 @@ import { signToken } from '../utils/functions/signToken';
 import { PrismaService } from '../prisma/prisma.service';
 import { EmailService } from '../email/email.service';
 import { welcomeTemplate } from '../email/types/emailTemplates';
+import { UserRole } from '../utils/types/user-roles';
+import { isValidRole } from '../utils/functions/isValidrole';
 
 @Injectable()
 export class AuthService {
@@ -30,7 +32,8 @@ export class AuthService {
   async register(
     createUser: CreateUserDto,
   ): Promise<SuccessResponse | ErrorResponse> {
-    const { email, phoneNumber, password, firstName, lastName } = createUser;
+    const { email, phoneNumber, password, firstName, lastName, role } =
+      createUser;
 
     //check if any user has been registred with such email
     const userExists = await this.prisma.user.findFirst({
@@ -49,10 +52,19 @@ export class AuthService {
         }),
       );
     }
-
+    if (role === UserRole.ADMIN || role === UserRole.MODERATOR) {
+      throw new BadRequestException(
+        customResponse({
+          status: false,
+          code: HttpStatus.BAD_REQUEST,
+          message: 'User cannot be created',
+          error: 'User cannot be created',
+        }),
+      );
+    }
     //TODO : impletement npm deep-email-validator
     //https://soshace.com/verifying-an-email-address-without-sending-an-email-in-nodejs/?ref=dailydev
-
+    const userRole = isValidRole(role) ? role : UserRole.USER;
     try {
       const hashedPassword = await hashPassword(password);
       const user: UserWithoutPassword = await this.prisma.user.create({
@@ -62,6 +74,7 @@ export class AuthService {
           lastName,
           password: hashedPassword,
           phoneNumber,
+          role: userRole,
         },
         select: prismaExclude('User', ['password']),
       });
