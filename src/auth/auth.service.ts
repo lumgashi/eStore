@@ -19,8 +19,8 @@ import { signToken } from '../utils/functions/signToken';
 import { PrismaService } from '../prisma/prisma.service';
 import { EmailService } from '../email/email.service';
 import { welcomeTemplate } from '../email/types/emailTemplates';
-import { UserRole } from 'src/utils/types/user-roles';
-import { isValidRole } from 'src/utils/functions/isValidrole';
+import { UserRole } from '../utils/types/user-roles';
+import { isValidRole } from '../utils/functions/isValidrole';
 
 @Injectable()
 export class AuthService {
