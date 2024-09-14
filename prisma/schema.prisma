@@ -22,7 +22,7 @@ model User {
   lastName    String
   phoneNumber String? @default("000-000-0000")
   password    String
-  role        String @default("user")
+  role        String
   isActive    Boolean @default(true)
   Post Post[]
 

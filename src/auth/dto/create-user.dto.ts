@@ -1,7 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 
-import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+import { UserRole } from 'src/utils/types/user-roles';
 
 export class CreateUserDto {
   @IsString({ message: 'First Name should not be string' })
@@ -24,6 +31,10 @@ export class CreateUserDto {
   @IsString()
   @ApiProperty({ example: '+00012324323' })
   phoneNumber?: string;
+
+  @IsEnum(UserRole)
+  @ApiProperty({ example: UserRole.USER })
+  role: UserRole;
 
   //@IsStrongPassword({}, { message: 'Email is not correct' })
   @IsNotEmpty({ message: 'Password should not be empty' })
