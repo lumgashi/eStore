@@ -6,13 +6,18 @@ import {
 } from '@nestjs/common';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
-import { User } from '@prisma/client';
+import { Prisma, Store, User } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-import { customResponse } from 'src/utils/functions/customResponse';
+import { customResponse } from '../utils/functions/customResponse';
+import { PaginateService } from '../paginate/paginate.service';
+import { GetStoreDto } from './dto/get-store.dto';
 
 @Injectable()
 export class StoresService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private paginate: PaginateService,
+  ) {}
   async create(createStoreDto: CreateStoreDto, currentUser: User) {
     const hasCreatedStore = await this.prisma.store.findUnique({
       where: {
@@ -60,8 +65,55 @@ export class StoresService {
     }
   }
 
-  findAll() {
-    return `This action returns all stores`;
+  async findAll(getStores: GetStoreDto) {
+    try {
+      const { page, limit, pagination, name } = getStores;
+      const query = {
+        name,
+      };
+      const stores = await this.paginate.paginator<
+        Store,
+        Prisma.StoreWhereInput,
+        Prisma.StoreSelect,
+        Prisma.StoreInclude,
+        | Prisma.StoreOrderByWithRelationInput
+        | Prisma.StoreOrderByWithRelationInput[]
+      >({
+        paginate: { pagination, page, limit },
+        model: this.prisma.user,
+        condition: {
+          where: {
+            ...query,
+          },
+        },
+        includeOrSelect: {
+          operator: 'select',
+          value: {
+            id: true,
+            name: true,
+            bio: true,
+            creatorId: true,
+          },
+        },
+        orderBy: [{ createdAt: 'asc' }],
+      });
+
+      return customResponse({
+        status: true,
+        code: HttpStatus.FOUND,
+        message: 'Stores retrieved successfully',
+        data: stores,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        customResponse({
+          status: false,
+          code: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: 'Could not get stores',
+          error: error.message,
+        }),
+      );
+    }
   }
 
   async findOne(identifier: string) {

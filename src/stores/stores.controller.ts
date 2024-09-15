@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { StoresService } from './stores.service';
 import { CreateStoreDto } from './dto/create-store.dto';
@@ -16,6 +17,7 @@ import { RolesGuard } from 'src/auth/guards/roles.guards';
 import { UserRole } from 'src/utils/types/user-roles';
 import { ReqUser, Roles } from 'src/auth/decorators';
 import { User } from '@prisma/client';
+import { GetStoreDto } from './dto/get-store.dto';
 
 @Controller('stores')
 export class StoresController {
@@ -29,8 +31,8 @@ export class StoresController {
   }
 
   @Get()
-  findAll() {
-    return this.storesService.findAll();
+  findAll(@Query() getStores: GetStoreDto) {
+    return this.storesService.findAll(getStores);
   }
 
   @Get(':id')
