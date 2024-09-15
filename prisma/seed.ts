@@ -1,4 +1,5 @@
 import { Prisma, PrismaClient } from '@prisma/client';
+import { UserRole } from 'src/utils/types/user-roles';
 
 const prisma = new PrismaClient();
 type UserCreateBody = Prisma.UserCreateInput;
@@ -10,6 +11,7 @@ async function main() {
       password: '12345678',
       firstName: 'John',
       lastName: 'Doe',
+      role: UserRole.USER,
     },
   });
   console.log(user);
