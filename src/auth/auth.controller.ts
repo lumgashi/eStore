@@ -38,7 +38,7 @@ export class AuthController {
    * @access      Private [User]
    */
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.USER)
+  @Roles(UserRole.USER, UserRole.BUSINESS)
   @Get('get-me')
   async getMe(@ReqUser() currentUser: User) {
     return this.authService.getMe(currentUser);

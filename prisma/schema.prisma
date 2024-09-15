@@ -5,8 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
-  binaryTargets = ["native", "linux-musl", "linux-musl-openssl-3.0.x"]
+  provider        = "prisma-client-js"
+  binaryTargets   = ["native", "linux-musl", "linux-musl-openssl-3.0.x"]
   previewFeatures = ["fullTextIndex", "omitApi"]
 }
 
@@ -16,29 +16,44 @@ datasource db {
 }
 
 model User {
-  id          String @id @default(auto()) @map("_id") @db.ObjectId
-  email       String @unique
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  email       String  @unique
   firstName   String
   lastName    String
   phoneNumber String? @default("000-000-0000")
   password    String
   role        String
   isActive    Boolean @default(true)
-  Post Post[]
+  Post        Post[]
+  store       Store?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  @@map("users") 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
 }
 
-
 model Post {
-  id          String @id @default(auto()) @map("_id") @db.ObjectId
-  title       String
-  content     String
-  author      User     @relation(fields: [authorid], references: [id])
-  authorid    String   @db.ObjectId
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  content   String
+  author    User     @relation(fields: [authorid], references: [id])
+  authorid  String   @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("posts")
+}
+
+model Store {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  name      String @unique
+  creator   User   @relation(fields: [creatorId], references: [id])
+  creatorId String @unique @db.ObjectId
+
+  bio String @default("No bio yet.")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  @@map("posts")
+
+  @@map("stores")
 }
