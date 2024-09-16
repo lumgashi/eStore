@@ -35,6 +35,13 @@ export class StoresController {
     return this.storesService.findAll(getStores);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.BUSINESS)
+  @Get('user-current-store')
+  getUserCurrentStore(@ReqUser() currentUser: User) {
+    return this.storesService.getUserCurrentStore(currentUser);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.storesService.findOne(id);
