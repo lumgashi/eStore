@@ -11,6 +11,7 @@ import { join } from 'path';
 import { UsersModule } from './users/users.module';
 import { StoresModule } from './stores/stores.module';
 import { StoreCategoriesModule } from './store-categories/store-categories.module';
+import { ProductsModule } from './products/products.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { StoreCategoriesModule } from './store-categories/store-categories.modul
     UsersModule,
     StoresModule,
     StoreCategoriesModule,
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

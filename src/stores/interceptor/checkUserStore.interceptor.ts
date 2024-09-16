@@ -36,7 +36,7 @@ export class StoreExistsInterceptor implements NestInterceptor {
         }),
       );
     }
-
+    request.store = store;
     return next.handle();
   }
 }
