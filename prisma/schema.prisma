@@ -51,24 +51,42 @@ model Store {
   creator   User   @relation(fields: [creatorId], references: [id])
   creatorId String @unique @db.ObjectId
 
-  storeCategories      StoreCategory[]
+  storeCategories StoreCategory[]
 
-  bio String @default("No bio yet.")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  bio       String    @default("No bio yet.")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Product   Product[]
 
   @@map("stores")
 }
 
 model StoreCategory {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String
 
-  storeId     String  @db.ObjectId
-  store       Store   @relation(fields: [storeId], references: [id]) 
+  storeId String @db.ObjectId
+  store   Store  @relation(fields: [storeId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  @@map("storeCategories")
+
   @@unique([storeId, name])
+  @@map("storeCategories")
+}
+
+model Product {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  storeId       String   @db.ObjectId
+  store         Store    @relation(fields: [storeId], references: [id])
+  stock         Int
+  productImages String[]
+  price         Float
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([storeId, name])
+  @@map("products")
 }
