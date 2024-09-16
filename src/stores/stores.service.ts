@@ -116,6 +116,40 @@ export class StoresService {
     }
   }
 
+  async getUserCurrentStore(currentUser: User) {
+    try {
+      const store = await this.prisma.store.findUnique({
+        where: {
+          creatorId: currentUser.id,
+        },
+        include: {
+          creator: {
+            omit: {
+              password: true,
+              phoneNumber: true,
+            },
+          },
+          storeCategories: true,
+        },
+      });
+      return customResponse({
+        status: true,
+        code: HttpStatus.OK,
+        message: 'Store found successfully',
+        data: store,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        customResponse({
+          status: false,
+          code: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: 'Could not get store',
+          error: error.message,
+        }),
+      );
+    }
+  }
+
   async findOne(identifier: string) {
     const store = await this.prisma.store.findUnique({
       where: {
