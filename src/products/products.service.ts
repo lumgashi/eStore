@@ -67,7 +67,7 @@ export class ProductsService {
         | Prisma.ProductOrderByWithRelationInput[]
       >({
         paginate: { pagination, page, limit },
-        model: this.prisma.user,
+        model: this.prisma.product,
         condition: {
           where: {
             ...query,

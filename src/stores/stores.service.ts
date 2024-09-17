@@ -80,7 +80,7 @@ export class StoresService {
         | Prisma.StoreOrderByWithRelationInput[]
       >({
         paginate: { pagination, page, limit },
-        model: this.prisma.user,
+        model: this.prisma.store,
         condition: {
           where: {
             ...query,
