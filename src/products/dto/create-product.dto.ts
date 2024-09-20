@@ -16,4 +16,8 @@ export class CreateProductDto {
   @IsNotEmpty()
   @IsNumber()
   stock: number;
+
+  @IsNotEmpty()
+  @IsNumber({ maxDecimalPlaces: 2 })
+  shippingFee: number;
 }
