@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { EmailService } from '../email/email.service';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -14,6 +15,7 @@ describe('AuthService', () => {
         AuthService,
         EmailService,
         PrismaService,
+        EventEmitter2,
         {
           provide: ConfigService,
           useValue: {

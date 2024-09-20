@@ -27,6 +27,7 @@ model User {
   Post        Post[]
   store       Store?
   Address     Address[]
+  Cart        Cart?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -99,10 +100,29 @@ model Product {
   stock         Int
   productImages String[]
   price         Float
+  shippingFee   Float
+  cartIDs       String[] @db.ObjectId
+  cart          Cart[]   @relation(fields: [cartIDs], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([storeId, name])
   @@map("products")
+}
+
+model Cart {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @unique @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+
+  productIDs String[]  @db.ObjectId
+  products    Product[] @relation(fields: [productIDs], references: [id])
+  emptyCart  Boolean   @default(false)
+
+  totalPrice  Float    @default(0.0)
+  shippingFee Float    @default(0.0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@map("carts")
 }

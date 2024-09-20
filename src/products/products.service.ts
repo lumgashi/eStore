@@ -19,13 +19,14 @@ export class ProductsService {
   ) {}
   async create(createProductDto: CreateProductDto, currentUser: User, request) {
     const { store } = request;
-    const { name, price, stock } = createProductDto;
+    const { name, price, stock, shippingFee } = createProductDto;
     try {
       const newProduct = await this.prisma.product.create({
         data: {
           name,
           price,
           stock,
+          shippingFee,
           store: {
             connect: {
               id: store.id,

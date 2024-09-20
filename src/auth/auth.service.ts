@@ -21,12 +21,14 @@ import { EmailService } from '../email/email.service';
 import { welcomeTemplate } from '../email/types/emailTemplates';
 import { UserRole } from '../utils/types/user-roles';
 import { isValidRole } from '../utils/functions/isValidrole';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
     private emailService: EmailService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async register(
@@ -86,6 +88,7 @@ export class AuthService {
         welcomeTemplate(user.firstName),
       );
 
+      this.eventEmitter.emit('user.created', user);
       // Send the response using the Express res object
       return customResponse({
         status: true,
