@@ -7,7 +7,7 @@ export class UpdateCartDto extends PartialType(CreateCartDto) {
   @IsString()
   productId?: string;
 
-  @IsEnum(['add', 'remove', 'emptyCart'])
+  @IsEnum(['add', 'removeOne', 'emptyCart', 'checkout', 'increase', 'decrease'])
   @IsNotEmpty()
   actionType: string;
 }

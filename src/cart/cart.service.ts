@@ -5,14 +5,20 @@ import {
 } from '@nestjs/common';
 import { UpdateCartDto } from './dto/update-cart.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { User, Cart } from '@prisma/client';
+import { User, Cart, CartItem } from '@prisma/client';
 import { customResponse } from '../utils/functions/customResponse';
-import { OnEvent } from '@nestjs/event-emitter';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { UserWithoutPassword } from 'src/auth/types';
+import { EmailService } from 'src/email/email.service';
+//import { placedOrderTemplate } from 'src/email/types/emailTemplates/order';
 
 @Injectable()
 export class CartService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private emit: EventEmitter2,
+    private emailService: EmailService,
+  ) {}
 
   @OnEvent('user.created')
   async create(user: UserWithoutPassword) {
@@ -45,6 +51,13 @@ export class CartService {
       where: {
         userId: currentUser.id,
       },
+      include: {
+        cartItems: {
+          include: {
+            product: true,
+          },
+        },
+      },
     });
 
     if (!cart) {
@@ -65,12 +78,17 @@ export class CartService {
 
   async update(currentUser: User, updateCartDto: UpdateCartDto) {
     const { actionType, productId } = updateCartDto;
-    const cart = await this.prisma.cart.findUnique({
+    let cart;
+    cart = await this.prisma.cart.findUnique({
       where: {
         userId: currentUser.id,
       },
       include: {
-        products: true,
+        cartItems: {
+          include: {
+            product: true,
+          },
+        },
       },
     });
 
@@ -85,16 +103,8 @@ export class CartService {
 
     if (actionType === 'emptyCart') {
       const emptyCart = await this.prisma.cart.update({
-        where: {
-          id: cart.id,
-        },
-        data: {
-          products: {
-            set: [],
-          },
-          totalPrice: 0.0,
-          shippingFee: 0.0,
-        },
+        where: { id: cart.id },
+        data: { cartItems: { set: [] } },
       });
 
       return customResponse({
@@ -105,102 +115,130 @@ export class CartService {
       });
     }
 
-    if (actionType === 'remove') {
-      const removeProduct = await this.prisma.cart.update({
-        where: {
-          id: cart.id,
-        },
+    if (actionType === 'increase') {
+    }
+
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    if (actionType === 'removeOne') {
+      const cartItemToRemove = await this.prisma.cartItem.findUnique({
+        where: { productId },
+      });
+      await this.prisma.cart.update({
+        where: { id: cart.id },
         data: {
-          products: {
+          cartItems: {
             disconnect: {
-              id: productId,
+              id: cartItemToRemove.id,
             },
           },
         },
       });
 
-      if (!removeProduct) {
-        return customResponse({
-          status: false,
-          code: HttpStatus.BAD_REQUEST,
-          message: 'Product has been removed from cart',
-          error: 'Product has been removed from cart',
-        });
-      }
+      await this.prisma.cartItem.delete({
+        where: { id: cartItemToRemove.id },
+      });
 
       return customResponse({
         status: true,
         code: HttpStatus.OK,
-        message: 'Product has been removed from cart',
-        data: removeProduct,
+        message: 'Cart item removed successfully',
+        data: cart, //carefull we migh not get the latest changes after deletion
       });
     }
 
-    // Check if the product is already in the cart
-    const productExists = cart.products.some(
-      (product) => product.id === updateCartDto.productId,
+    const isCartItemInCart = cart.cartItems.find(
+      (cItem: CartItem) => cItem.productId === product.id,
     );
 
-    if (productExists) {
-      return customResponse({
-        status: false,
-        code: HttpStatus.OK,
-        message: 'Product has been added to cart',
-        error: 'Product has been added to cart',
-      });
-    }
+    console.log('isCartItemInCart::', isCartItemInCart);
 
-    let product;
-    if (productId) {
-      product = await this.prisma.product.findUnique({
-        where: {
-          id: productId,
+    if (
+      isCartItemInCart ||
+      actionType === 'increase' ||
+      actionType === 'decrease'
+    ) {
+      const query = {};
+      if (actionType === 'increase' || isCartItemInCart)
+        query['quantity'] = { increment: 1 };
+      if (actionType === 'decrease') query['quantity'] = { decrement: 1 };
+      await this.prisma.cartItem.update({
+        where: { id: isCartItemInCart.id },
+        data: { ...query },
+      });
+      const increaseOrDecrease =
+        actionType === 'decrease'
+          ? Number((cart.totalPrice - product.price).toFixed(2))
+          : Number((cart.totalPrice + product.price).toFixed(2));
+      cart = await this.prisma.cart.update({
+        where: { id: cart.id },
+        data: {
+          totalPrice: increaseOrDecrease,
         },
       });
+      return customResponse({
+        status: true,
+        code: HttpStatus.OK,
+        message: 'Cart item updated successfully',
+        data: cart, //carefull we migh not get the latest changes after deletion
+      });
     }
 
-    const totalPriceOfCart = cart.products.reduce(
-      (acc, product) => acc + product.price,
-      cart.totalPrice,
-    );
-    const totalPrice = totalPriceOfCart + product.price;
-    console.log('totalPrice:', totalPrice);
-
-    const shippingFeeOfCart = cart.products.reduce(
-      (acc, product) => acc + product.shippingFee,
-      cart.shippingFee,
-    );
-    const shippingFee = shippingFeeOfCart + product.shippingFee;
-    const updatedCart = await this.prisma.cart.update({
-      where: {
-        id: cart.id,
-      },
+    const newCartItem = await this.prisma.cartItem.create({
       data: {
-        products: {
+        cart: {
           connect: {
-            id: productId,
+            id: cart.id,
+          },
+        },
+        product: {
+          connect: {
+            id: product.id,
+          },
+        },
+        quantity: 1,
+      },
+    });
+
+    const totalPrice = cart.cartItems.reduce(
+      (acc, item) => acc + item.product.price * item.quantity,
+      product.price,
+    );
+
+    const shippingFee = cart.cartItems.reduce(
+      (acc, item) => acc + item.product.shippingFee * item.quantity,
+      product.shippingFee,
+    );
+
+    const updatedCart = await this.prisma.cart.update({
+      where: { id: cart.id },
+      data: {
+        cartItems: {
+          connect: {
+            id: newCartItem.id,
           },
         },
         totalPrice,
         shippingFee,
       },
-      include: {
-        products: true,
-      },
     });
+
     if (!updatedCart) {
       return customResponse({
         status: false,
-        code: HttpStatus.BAD_REQUEST,
+        code: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Could not update cart',
         error: 'Could not update cart',
       });
     }
+
     return customResponse({
       status: true,
       code: HttpStatus.OK,
       message: 'Cart updated successfully',
-      data: updatedCart,
+      data: cart,
     });
   }
 }
